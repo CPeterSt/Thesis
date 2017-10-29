@@ -1,0 +1,479 @@
+/*
+ * AccelMonitor.c
+ *
+ *  Created on: 31 Jul 2017
+ *      Author: Cundell
+ */
+
+#include "Utilities.h"
+#include "NVSManager.h"
+#include "WiFiManager.h"
+#include "SDHC_Manager.h"
+#include "I2C_Manager.h"
+#include "FileManager.h"
+#include "AccelMonitor.h"
+
+
+
+/*************************************************************************************************************************************
+Defines
+ **************************************************************************************************************************************/
+
+#define BLINK_GPIO 2
+
+/*************************************************************************************************************************************
+Prototypes
+ **************************************************************************************************************************************/
+
+esp_err_t Initalize(void);
+void blink_Alive_task(void *pvParameter);
+esp_err_t Calabrate_Accelerometer();
+void save_Time(void *pvParameter);
+
+
+/*************************************************************************************************************************************
+Variables
+ **************************************************************************************************************************************/
+esp_err_t MMA7660_error;
+esp_err_t ADXL345_error;
+
+int ComsTimerCount = 0;
+uint8_t WiFi_Connected = 0;
+
+
+uint8_t aliveFlag = 1;
+
+int64_t currentTime, offsetTime;
+struct timeval tVal;
+uint8_t NVS_AccelBlock_Counter = 0;
+
+uint16_t loopParameter = 0;
+
+static QueueHandle_t q1;
+
+
+void app_main()
+{
+	debug_StartUp();
+	esp_err_t err;
+
+	err = Initalize();
+
+	xTaskCreate(&blink_Alive_task, "blink_Alive_task", configMINIMAL_STACK_SIZE, NULL, 5, NULL);
+	xTaskCreate(Coms_En_task, "test1_task", 2048, NULL, 10, NULL);
+
+	read_Time_NVS(&offsetTime);
+
+	xTaskCreate(&save_Time, "save_Time", 2048, NULL, 5, NULL);
+
+	char inputChar;
+	MMA7660_error = MMA7660_init();
+
+
+	//WriteFile("Data.txt", "data to send");
+
+	//ReadAndSendDataFile();
+
+	while (1) {
+
+		inputChar = getc(stdin);
+		if(inputChar == 'C')
+		{
+
+			err = clear_all_nvs("Time_Name_Space");
+			int var;
+			for (var = 0; var < 256; ++var) {
+				err = clear_all_nvs( "Accel%d", var);
+			}
+
+
+			if (err != ESP_OK)
+			{
+				printf("Error (%d) Erasing NVS!\n", err);
+			}
+			else
+			{
+				printf("Success!\n");
+			}
+
+
+		}else if(inputChar == 'S')
+		{
+			uint32_t var;
+			uint16_t currentSize = 0;
+
+			for (var = 0; var < 10000; ++var) {
+				err = save_to_nvs("HelloCundell12345678", &currentSize, "Hello%d", 1);
+				vTaskDelay(50 / portTICK_PERIOD_MS);
+
+				if (err != ESP_OK){
+					break;
+				}
+			}
+			if (err != ESP_OK){
+				printf("Error (%d) saving run time blob to NVS!\n", err);
+			}
+			else
+			{
+				printf("Success!\n");
+			}
+
+		}else if(inputChar == 'P')
+		{
+			err = print_nvs("Hello%d", 1);
+			if (err != ESP_OK){
+				printf("Error (%d) printing NVS!\n", err);
+			}
+			else
+			{
+				printf("Success!\n");
+			}
+		}else if(inputChar == 'L')//Log accel data
+		{
+			if (MMA7660_error != ESP_OK)
+			{
+				debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error initalizing MMA7600 (%d)", MMA7660_error);
+			}else
+			{
+				uint8_t globalIntVar = 3;
+				xTaskCreate(&Sample_Save, "Poll_Accelerometer", 2048, &globalIntVar, 5, NULL);
+			}
+
+		}else if(inputChar == 'Q')//Calibrate accelerometer
+		{
+			err = Calabrate_Accelerometer();;
+			if (err != ESP_OK){
+				debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error Calibrating Accelerometer MMA7600 (%d)", err);
+			}
+			else
+			{
+				printf("Success!\n");
+			}
+		}else if(inputChar == 'T')//Calibrate accelerometer
+		{
+			err = print_nvs("Hello%d", 1);
+			if (err != ESP_OK){
+				printf("Error (%d) printing NVS!\n", err);
+			}
+			else
+			{
+				printf("Success!\n");
+			}
+
+		}
+
+
+	}
+}
+
+esp_err_t Initalize()
+{
+
+
+	esp_err_t err;
+
+	err = I2C_init();
+
+	WiFi_Config("My ESP-32 04", "123456789");
+
+	File_Init();
+
+	SD_Init();
+
+	//	WriteSDCard("TestData.txt", "Hope This Works %d", 1234);
+	//	SDCardUnmount();
+
+	err = initialize_nvs();
+
+	err = save_restart_counter();
+
+	return err;
+}
+
+esp_err_t Calabrate_Accelerometer()
+{
+
+	Calabrating = 1;
+	AccelOffSet[0] = 0;
+	AccelOffSet[1] = 0;
+	AccelOffSet[2] = 0;
+
+	double XYZ [3];
+	double sphere[3];
+	int i = 0, calabratedCount = 0;;
+
+	for(i = 0; i < 2000; i++)
+	{
+		vTaskDelay(16 / portTICK_PERIOD_MS);
+		esp_err_t err = Get_MMA7660_XYZ(XYZ);
+		if(err == ESP_OK)
+		{
+			CartToSpherical(XYZ, sphere);
+
+			if(sphere[2] < 179.5)
+			{
+				calabratedCount = 0;
+				AccelOffSet[2] += 0.05;
+				printf("calabratedCount : %d\n", calabratedCount);
+				printf("Calibrating++: %.3f, %.3f, %.3f\n", sphere[0], sphere[1], sphere[2]);
+			}else if(sphere[2] > 180.5)
+			{
+				calabratedCount = 0;
+				AccelOffSet[2] -= 0.05;
+				printf("calabratedCount : %d\n", calabratedCount);
+				printf("Calibrating--: %.3f, %.3f, %.3f\n", sphere[0], sphere[1], sphere[2]);
+			}else if(calabratedCount < 10)
+			{
+				calabratedCount++;
+				printf("calabratedCount : %d\n", calabratedCount);
+				printf("Calibrating ==: %.3f, %.3f, %.3f\n", sphere[0], sphere[1], sphere[2]);
+
+			}else
+			{
+				break;
+				printf("\nCalibrated: %.3f, %.3f, %.3f\n", sphere[0], sphere[1], sphere[2]);
+			}
+		}else
+		{
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error getting MMA7660 XYZ %d", err);
+		}
+	}
+
+	printf("Calibrated i: %d\n", i);
+	Calabrating = 0;
+	return ESP_OK;
+}
+
+void ReadAndSendDataFile()
+{
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting");
+
+
+	gpio_set_level(PIN_SD_ENABLE, 0);
+
+
+//	FILE *sdFile = fopen("/sdcard/SDData.txt", "rb");
+//	if (sdFile == NULL) {
+//		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Failed to open SD file for reading");
+//		gpio_set_level(PIN_SD_ENABLE, 1);
+//	}else
+//	{
+//		debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "fopen Success");
+//
+//		fseek(sdFile, 0, SEEK_END); // seek to end of file
+//		int size = ftell(sdFile); // get current file pointer
+//		fseek(sdFile, 0, SEEK_SET);
+//		char fileData[512] = {0};
+//
+//		printf("File size%d\n", size);
+//
+//		uint16_t fileGetCharCounter = 0, arrayOffSet = 0;
+//		char c = fgetc(sdFile);
+//		for(fileGetCharCounter = 1; fileGetCharCounter < size; fileGetCharCounter++)
+//		{
+//			if(c != '~')
+//			{
+//				fileData[fileGetCharCounter - (arrayOffSet + 1)] = c;
+//			}else
+//			{
+//				arrayOffSet = fileGetCharCounter;
+//				SendData_TCPIP(fileData, 0);
+//				memset(fileData,0,512);
+//			}
+//			c = fgetc(sdFile);
+//		}
+//	}
+
+
+	FILE *f = fopen("/spiflash/Data.txt", "rb");
+
+	if (f == NULL) {
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Failed to open file for reading");
+	}else
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "fopen Success");
+
+		fseek(f, 0, SEEK_END); // seek to end of file
+		int size = ftell(f); // get current file pointer
+		fseek(f, 0, SEEK_SET);
+		char fileData[512] = {0};
+
+		printf("File size%d\n", size);
+
+		uint16_t fileGetCharCounter = 0, arrayOffSet = 0;
+		char c = fgetc(f);
+		for(fileGetCharCounter = 1; fileGetCharCounter < size; fileGetCharCounter++)
+		{
+			if(c != '~')
+			{
+				fileData[fileGetCharCounter - (arrayOffSet + 1)] = c;
+			}else
+			{
+				arrayOffSet = fileGetCharCounter;
+				SendData_TCPIP(fileData, 4);
+				memset(fileData,0,512);
+			}
+			c = fgetc(f);
+		}
+		//printf("FileData:%s\n", fileData);
+		//SendData_TCPIP(fileData, 0);
+
+		fclose(f);
+	}
+}
+
+static void handler(void *args) {
+	gpio_num_t gpio;
+	gpio = COMS_EN_GPIO;
+	xQueueSendToBackFromISR(q1, &gpio, NULL);
+}
+
+/********************************************XTasks****************************************/
+
+void Coms_En_task(void *ignore) {
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting");
+
+	gpio_num_t gpio;
+	q1 = xQueueCreate(10, sizeof(gpio_num_t));
+	gpio_config_t gpioConfig;
+	gpioConfig.pin_bit_mask = GPIO_SEL_0;
+	gpioConfig.mode = GPIO_MODE_INPUT;
+	gpioConfig.pull_up_en = GPIO_PULLUP_ENABLE;
+	gpioConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
+	gpioConfig.intr_type = GPIO_INTR_NEGEDGE;
+	gpio_config(&gpioConfig);
+	gpio_install_isr_service(0);
+	gpio_isr_handler_add(COMS_EN_GPIO, handler, NULL);
+	while(1) {
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Waiting on Coms enable queue");
+		xQueueReceive(q1, &gpio, portMAX_DELAY);
+		ComsTimerCount = 0;
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "esp_wifi_start");
+
+		ESP_ERROR_CHECK(esp_wifi_start());
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Woke from Coms enable queue wait");
+	}
+	vTaskDelete(NULL);
+}
+
+void blink_Alive_task(void *pvParameter)
+{
+	gpio_pad_select_gpio(BLINK_GPIO);
+	gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+
+	while(aliveFlag) {
+		gpio_set_level(BLINK_GPIO, 0);
+		vTaskDelay(500 / portTICK_PERIOD_MS);
+		gpio_set_level(BLINK_GPIO, 1);
+		vTaskDelay(500 / portTICK_PERIOD_MS);
+	}
+
+	return;
+}
+
+void save_Time(void *pvParameter)
+{
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting save_Time");
+	while(1)
+	{
+		//time(&now);
+		//currentTime = offsetTime + now;
+		gettimeofday(&tVal, NULL);
+		currentTime = offsetTime + tVal.tv_sec*1000000 + tVal.tv_usec;
+		save_Time_NVS(currentTime);
+		if(ComsTimerCount >= 15)
+		{
+			ComsTimerCount = -1;
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "esp_wifi_stop");
+
+			ESP_ERROR_CHECK(esp_wifi_stop());
+		}
+		if(WiFi_Connected == 0 && ComsTimerCount >= 0)
+		{
+			ComsTimerCount++;
+		}
+		vTaskDelay(1000 / portTICK_PERIOD_MS);
+	}
+	return;
+}
+
+void Sample_Save(void *parameter)
+{
+
+	double XYZ [3];
+	uint8_t primaryLoopCount = 0;
+	loopParameter = *(uint16_t *)parameter;
+	char SampleStreamData[512] = {0};
+	char tmparr[20] = {0};
+	uint8_t currentTimeArray[8];
+
+	for(primaryLoopCount = 0; primaryLoopCount < loopParameter; primaryLoopCount++)
+	{
+		int i = 0;
+		//Get time
+		gettimeofday(&tVal, NULL);
+		currentTime = offsetTime + tVal.tv_sec*1000000 + tVal.tv_usec;
+
+		memcpy(currentTimeArray, &currentTime, 8);
+
+		//Save time
+		sprintf(tmparr, "%016llx\n",currentTime);
+		strcat(SampleStreamData, tmparr);
+
+		for(i = 0; i < sampleCount; i++)
+		{
+			Get_MMA7660_XYZ(XYZ);
+			sprintf(tmparr, "%.3f %.3f %.3f\n", XYZ[0], XYZ[1], XYZ[2]);
+			strcat(SampleStreamData, tmparr);
+
+			vTaskDelay(samplePeriod / portTICK_PERIOD_MS);
+		}
+		strcat(SampleStreamData, "~");
+		//printf("Saving:%s", SampleStreamData);
+
+		WriteFile("Data.txt", SampleStreamData);
+		memset(SampleStreamData,'\0', 512);
+
+	}
+	vTaskDelete(NULL);
+
+	return;
+}
+
+void Sample_Stream(void *parameter)
+{
+	double XYZ [3];
+	uint8_t primaryLoopCount = 0;
+	uint16_t loopParameter = *(uint16_t *)parameter;
+	char SampleStreamData[512] = {0};
+	char tmparr[20] = {0};
+	uint8_t currentTimeArray[8];
+
+	for(primaryLoopCount = 0; primaryLoopCount < loopParameter; primaryLoopCount++)
+	{
+		int i = 0;
+		//Get time
+		gettimeofday(&tVal, NULL);
+		currentTime = offsetTime + tVal.tv_sec*1000000 + tVal.tv_usec;
+
+		memcpy(currentTimeArray, &currentTime, 8);
+
+		//Save time
+		sprintf(tmparr, "%016llx\n",currentTime);
+		strcat(SampleStreamData, tmparr);
+
+		for(i = 0; i < sampleCount; i++)
+		{
+			Get_MMA7660_XYZ(XYZ);
+			sprintf(tmparr, "%.3f %.3f %.3f\n", XYZ[0], XYZ[1], XYZ[2]);
+			strcat(SampleStreamData, tmparr);
+			vTaskDelay(samplePeriod / portTICK_PERIOD_MS);
+		}
+	}
+	SendData_TCPIP(SampleStreamData, 0);
+	vTaskDelete(NULL);
+
+	return;
+}
+
+

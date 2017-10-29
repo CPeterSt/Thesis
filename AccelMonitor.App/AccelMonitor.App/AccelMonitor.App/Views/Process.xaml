@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:chart="clr-namespace:Syncfusion.SfChart.XForms;assembly=Syncfusion.SfChart.XForms"
+             x:Class="AccelMonitor.App.Views.Process"
+             Title="{Binding Title}">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Toggle Streaming" Clicked="ToolbarItem_Clicked"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="450" />
+                    <RowDefinition Height="450" />
+                    <RowDefinition Height="450" />
+                    <RowDefinition Height="450" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackLayout Grid.Row="0">
+                    <Button Text="Delete All" Clicked="Button_Clicked_1"/>
+                    <DatePicker x:Name="StartDatePicker"/>
+                    <TimePicker x:Name="StartTimePicker"/>
+                    <DatePicker x:Name="EndDatePicker"/>
+                    <TimePicker x:Name="EndTimePicker"/>
+                    <Picker x:Name="FilterPicker" Title="Filter Sample Number" SelectedIndexChanged="FilterPicker_SelectedIndexChanged"/>
+                    <Picker x:Name="GraphTypePicker" Title="Graph type" SelectedIndexChanged="FilterPicker_SelectedIndexChanged"/>
+                    <Picker x:Name="TollerancePicker" Title="Tollerance Band" SelectedIndexChanged="FilterPicker_SelectedIndexChanged"/>
+                    <Picker x:Name="ShiftXPicker" Title="Shift X Values" SelectedIndexChanged="FilterPicker_SelectedIndexChanged"/>
+
+                </StackLayout>
+
+
+                    <chart:SfChart x:Name="ChartX" VerticalOptions="Fill" HorizontalOptions="StartAndExpand" Grid.Row="1">
+
+                        <chart:SfChart.Legend>
+
+                            <chart:ChartLegend/>
+
+                        </chart:SfChart.Legend>
+
+                        <chart:SfChart.ChartBehaviors>
+
+                            <chart:ChartZoomPanBehavior ZoomMode="X"/>
+
+                        </chart:SfChart.ChartBehaviors>
+
+                        <chart:SfChart.Title>
+
+                            <chart:ChartTitle Text="Acceleration Analysis X"/>
+
+                        </chart:SfChart.Title>
+
+                        <chart:SfChart.PrimaryAxis>
+
+                            <chart:DateTimeAxis>
+
+                                <chart:DateTimeAxis.LabelStyle>
+                                    <chart:ChartAxisLabelStyle LabelFormat="HH:mm:ss"/>
+                                </chart:DateTimeAxis.LabelStyle>
+
+                                <chart:DateTimeAxis.Title>
+
+                                    <chart:ChartAxisTitle Text="Time"/>
+
+                                </chart:DateTimeAxis.Title>
+
+                            </chart:DateTimeAxis>
+
+                        </chart:SfChart.PrimaryAxis>
+
+                        <!--<chart:SfChart.SecondaryAxis>
+
+                            <chart:NumericalAxis>
+
+                                <chart:NumericalAxis.Title>
+
+                                    <chart:ChartAxisTitle Text="m/s^2"/>
+
+                                </chart:NumericalAxis.Title>
+
+                            </chart:NumericalAxis>
+
+                        </chart:SfChart.SecondaryAxis>-->
+
+                    </chart:SfChart>
+
+                    <chart:SfChart x:Name="ChartY" VerticalOptions="Fill" HorizontalOptions="Fill" Grid.Row="2">
+
+                        <chart:SfChart.Legend>
+
+                            <chart:ChartLegend/>
+
+                        </chart:SfChart.Legend>
+
+                        <chart:SfChart.ChartBehaviors>
+
+                            <chart:ChartZoomPanBehavior ZoomMode="X"/>
+
+                        </chart:SfChart.ChartBehaviors>
+
+                        <chart:SfChart.Title>
+
+                            <chart:ChartTitle Text="Acceleration Analysis Y"/>
+
+                        </chart:SfChart.Title>
+
+                        <chart:SfChart.PrimaryAxis>
+
+                            <chart:DateTimeAxis>
+
+                                <chart:DateTimeAxis.LabelStyle>
+                                    <chart:ChartAxisLabelStyle LabelFormat="HH:mm:ss"/>
+                                </chart:DateTimeAxis.LabelStyle>
+
+                                <chart:DateTimeAxis.Title>
+
+                                    <chart:ChartAxisTitle Text="Time"/>
+
+                                </chart:DateTimeAxis.Title>
+
+                            </chart:DateTimeAxis>
+
+                        </chart:SfChart.PrimaryAxis>
+
+                        <chart:SfChart.SecondaryAxis>
+
+                            <chart:NumericalAxis>
+
+                                <chart:NumericalAxis.Title>
+
+                                    <chart:ChartAxisTitle Text="m/s^2"/>
+
+                                </chart:NumericalAxis.Title>
+
+                            </chart:NumericalAxis>
+
+                        </chart:SfChart.SecondaryAxis>
+
+                    </chart:SfChart>
+
+                    <chart:SfChart x:Name="ChartZ" VerticalOptions="Fill" HorizontalOptions="Fill" Grid.Row="3">
+
+                        <chart:SfChart.Legend>
+
+                            <chart:ChartLegend/>
+
+                        </chart:SfChart.Legend>
+
+                        <chart:SfChart.ChartBehaviors>
+
+                            <chart:ChartZoomPanBehavior ZoomMode="X"/>
+
+                        </chart:SfChart.ChartBehaviors>
+
+                        <chart:SfChart.Title>
+
+                            <chart:ChartTitle Text="Acceleration Analysis Z"/>
+
+                        </chart:SfChart.Title>
+
+                        <chart:SfChart.PrimaryAxis>
+
+                            <chart:DateTimeAxis>
+
+                                <chart:DateTimeAxis.LabelStyle>
+                                    <chart:ChartAxisLabelStyle LabelFormat="HH:mm:ss"/>
+                                </chart:DateTimeAxis.LabelStyle>
+
+                                <chart:DateTimeAxis.Title>
+
+                                    <chart:ChartAxisTitle Text="Time"/>
+
+                                </chart:DateTimeAxis.Title>
+
+                            </chart:DateTimeAxis>
+
+                        </chart:SfChart.PrimaryAxis>
+
+                        <chart:SfChart.SecondaryAxis>
+
+                            <chart:NumericalAxis>
+
+                                <chart:NumericalAxis.Title>
+
+                                    <chart:ChartAxisTitle Text="m/s^2"/>
+
+                                </chart:NumericalAxis.Title>
+
+                            </chart:NumericalAxis>
+
+                        </chart:SfChart.SecondaryAxis>
+
+                    </chart:SfChart>
+
+            </Grid>
+        </ScrollView>
+
+    </ContentPage.Content>
+</ContentPage>

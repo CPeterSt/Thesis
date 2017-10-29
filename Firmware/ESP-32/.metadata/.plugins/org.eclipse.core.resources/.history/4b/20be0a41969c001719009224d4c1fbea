@@ -1,0 +1,61 @@
+/*
+ * Utilities.h
+ *
+ *  Created on: 31 Jul 2017
+ *      Author: Cundell
+ */
+
+/*
+ * 2017-08-24	v1.0.0-Alpha	Begin actually formulating project now that each major part works
+ * 2017-08-25	v1.0.1-Alpha	Improve logging
+ * 				v1.0.2-Alpha	Output Accel over serial
+ * 				v1.0.3-Alpha	Convert 6bit 2's compliment from MMA7600
+ * 2017-09-04	v1.0.4-Alpha	Convert to spherical and back as well as calibrate device
+ * 2017-09-05	v1.1.0-Alpha	Calibration for on a desk complete
+ * 2017-09-06	v1.1.1-Alpha	Fix conversion to spherical bug
+ *
+ *
+ */
+
+#define Version_Number "v1.1.1-Alpha"
+
+#include <stdio.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "sdkconfig.h"
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+#include "esp_partition.h"
+#include "esp_system.h"
+#include "driver/gpio.h"
+
+#ifndef MAIN_UTILITIES_H_
+#define MAIN_UTILITIES_H_
+
+
+// debugging
+#define debug_Level 3  // 0 disabled, 1 light, 2 moderate, 3 excessive
+
+#define LogToFile 1
+#define LogToSerial 0
+
+
+
+#define Error_code 0
+#define StartUp_code -2
+
+#define Warning_code 1
+#define Info_code 2
+#define Verbose_code 3
+
+void debug_Write(const char* classNmae, const char* function, uint16_t lineNo, int type, char* msg, ...);
+void debug_StartUp();
+char *basename(char const *path);
+void CartToSpherical(double * XYZ, double* sphere);
+void SphericalToCart(double * XYZ, double* sphere);
+
+
+
+
+#endif /* MAIN_UTILITIES_H_ */

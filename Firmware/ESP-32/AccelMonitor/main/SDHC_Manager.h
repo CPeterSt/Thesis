@@ -1,0 +1,44 @@
+/*
+ * SDHC_Manager.h
+ *
+ *  Created on: 23 Aug 2017
+ *      Author: Cundell
+ */
+
+//#include <stdio.h>
+//#include <string.h>
+#include <sys/unistd.h>
+#include <sys/stat.h>
+//#include "esp_err.h"
+//#include "esp_log.h"
+#include "esp_vfs_fat.h"
+#include "driver/sdmmc_host.h"
+#include "driver/sdspi_host.h"
+#include "sdmmc_cmd.h"
+
+#include "Utilities.h"
+
+
+#define USE_SPI_MODE
+
+// When testing SD and SPI modes, keep in mind that once the card has been
+// initialized in SPI mode, it can not be reinitialized in SD mode without
+// toggling power to the card.
+
+#ifdef USE_SPI_MODE
+// Pin mapping when using SPI mode.
+// With this mapping, SD card can be used both in SPI and 1-line SD mode.
+// Note that a pull-up on CS line is required in SD mode.
+#define PIN_NUM_MISO 19
+#define PIN_NUM_MOSI 21
+#define PIN_NUM_CLK  23
+#define PIN_NUM_CS   22
+#define PIN_SD_ENABLE   13
+#endif //USE_SPI_MODE
+
+
+
+void SD_Init(void);
+esp_err_t WriteSDCard(char*fileName, char * msg, ...);
+void SDCardUnmount();
+esp_err_t ClearSDCard(char*fileName);

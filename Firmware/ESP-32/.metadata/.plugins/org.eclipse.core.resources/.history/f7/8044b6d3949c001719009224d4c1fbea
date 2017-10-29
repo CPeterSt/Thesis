@@ -1,0 +1,32 @@
+/*
+ * WiFiManager.h
+ *
+ *  Created on: 20 Aug 2017
+ *      Author: Cundell
+ */
+
+#include <stdio.h>
+#include <string.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "sdkconfig.h"
+#include "esp_system.h"
+#include "esp_partition.h"
+#include "nvs_flash.h"
+#include "nvs.h"
+#include "NVSManager.h"
+#include "esp_wifi.h"
+#include "esp_event.h"
+#include "esp_event_loop.h"
+#include "esp_log.h"
+#include "Utilities.h"
+#include <lwip/sockets.h>
+
+
+#ifndef MAIN_WIFIMANAGER_H_
+#define MAIN_WIFIMANAGER_H_
+
+void WiFi_Config(char SSID [], char password []);
+void socket_server(void);
+
+#endif /* MAIN_WIFIMANAGER_H_ */

@@ -1,0 +1,306 @@
+20:47:43 **** Build of configuration Default for project AccelMonitor ****
+python C:/msys32/home/Cundell/esp-idf/tools/windows/eclipse_make.py flash 
+Running make in 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor'
+including C:/msys32/home/Cundell/esp-idf/components/bootloader/Makefile.projbuild...
+including C:/msys32/home/Cundell/esp-idf/components/bootloader_support/Makefile.projbuild...
+including C:/msys32/home/Cundell/esp-idf/components/coap/Makefile.projbuild...
+including C:/msys32/home/Cundell/esp-idf/components/esp32/Makefile.projbuild...
+including C:/msys32/home/Cundell/esp-idf/components/esptool_py/Makefile.projbuild...
+including C:/msys32/home/Cundell/esp-idf/components/mbedtls/Makefile.projbuild...
+including C:/msys32/home/Cundell/esp-idf/components/nghttp/Makefile.projbuild...
+including C:/msys32/home/Cundell/esp-idf/components/partition_table/Makefile.projbuild...
+including C:/msys32/home/Cundell/esp-idf/components/ulp/Makefile.projbuild...
+WARNING: Toolchain version is not supported: crosstool-NG crosstool-ng-1.22.0-61-gab8375a
+Expected to see version: 1.22.0-61-ge28a011
+Please check ESP-IDF setup instructions and update the toolchain, or proceed at your own risk.
+PROJECT_PATH= COMPONENT_DIRS= make -C C:/msys32/home/Cundell/esp-idf/components/bootloader/subproject V=1 BUILD_DIR_BASE=C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader TEST_COMPONENTS= TESTS_ALL= C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/bootloader.bin
+make[1]: Entering directory 'C:/msys32/home/Cundell/esp-idf/components/bootloader/subproject'
+including C:/msys32/home/Cundell/esp-idf/components/esptool_py/Makefile.projbuild...
+including C:/msys32/home/Cundell/esp-idf/components/bootloader_support/Makefile.projbuild...
+including C:/msys32/home/Cundell/esp-idf/components/bootloader/subproject/main/Makefile.projbuild...
+WARNING: Toolchain version is not supported: crosstool-NG crosstool-ng-1.22.0-61-gab8375a
+Expected to see version: 1.22.0-61-ge28a011
+Please check ESP-IDF setup instructions and update the toolchain, or proceed at your own risk.
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/bootloader_support -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/bootloader_support/component.mk COMPONENT_NAME=bootloader_support build
+make[2]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/bootloader_support'
+make[2]: Nothing to be done for 'build'.
+make[2]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/bootloader_support'
+Target 'component-bootloader_support-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/bootloader_support/libbootloader_support.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/log -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/log/component.mk COMPONENT_NAME=log build
+make[2]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/log'
+make[2]: Nothing to be done for 'build'.
+make[2]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/log'
+Target 'component-log-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/log/liblog.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/spi_flash -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/spi_flash/component.mk COMPONENT_NAME=spi_flash build
+make[2]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/spi_flash'
+make[2]: Nothing to be done for 'build'.
+make[2]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/spi_flash'
+Target 'component-spi_flash-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/spi_flash/libspi_flash.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/micro-ecc -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/micro-ecc/component.mk COMPONENT_NAME=micro-ecc build
+make[2]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/micro-ecc'
+make[2]: Nothing to be done for 'build'.
+make[2]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/micro-ecc'
+Target 'component-micro-ecc-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/micro-ecc/libmicro-ecc.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/soc -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/soc/component.mk COMPONENT_NAME=soc build
+make[2]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/soc'
+make[2]: Nothing to be done for 'build'.
+make[2]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/soc'
+Target 'component-soc-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/soc/libsoc.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/main -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/bootloader/subproject/main/component.mk COMPONENT_NAME=main build
+make[2]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/main'
+make[2]: Nothing to be done for 'build'.
+make[2]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/main'
+Target 'component-main-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/main/libmain.a'
+make[1]: Leaving directory 'C:/msys32/home/Cundell/esp-idf/components/bootloader/subproject'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/app_trace -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/app_trace/component.mk COMPONENT_NAME=app_trace build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/app_trace'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/app_trace'
+Target 'component-app_trace-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/app_trace/libapp_trace.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/app_update -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/app_update/component.mk COMPONENT_NAME=app_update build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/app_update'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/app_update'
+Target 'component-app_update-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/app_update/libapp_update.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/aws_iot -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/aws_iot/component.mk COMPONENT_NAME=aws_iot build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/aws_iot'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/aws_iot'
+Target 'component-aws_iot-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/aws_iot/libaws_iot.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader_support -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/bootloader_support/component.mk COMPONENT_NAME=bootloader_support build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader_support'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader_support'
+Target 'component-bootloader_support-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader_support/libbootloader_support.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bt -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/bt/component.mk COMPONENT_NAME=bt build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bt'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bt'
+Target 'component-bt-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bt/libbt.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/coap -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/coap/component.mk COMPONENT_NAME=coap build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/coap'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/coap'
+Target 'component-coap-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/coap/libcoap.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/console -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/console/component.mk COMPONENT_NAME=console build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/console'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/console'
+Target 'component-console-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/console/libconsole.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/cxx -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/cxx/component.mk COMPONENT_NAME=cxx build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/cxx'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/cxx'
+Target 'component-cxx-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/cxx/libcxx.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/driver -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/driver/component.mk COMPONENT_NAME=driver build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/driver'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/driver'
+Target 'component-driver-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/driver/libdriver.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/esp32 -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/esp32/component.mk COMPONENT_NAME=esp32 build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/esp32'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/esp32'
+Target 'component-esp32-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/esp32/libesp32.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/esp_adc_cal -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/esp_adc_cal/component.mk COMPONENT_NAME=esp_adc_cal build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/esp_adc_cal'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/esp_adc_cal'
+Target 'component-esp_adc_cal-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/esp_adc_cal/libesp_adc_cal.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/ethernet -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/ethernet/component.mk COMPONENT_NAME=ethernet build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/ethernet'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/ethernet'
+Target 'component-ethernet-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/ethernet/libethernet.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/expat -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/expat/component.mk COMPONENT_NAME=expat build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/expat'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/expat'
+Target 'component-expat-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/expat/libexpat.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/fatfs -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/fatfs/component.mk COMPONENT_NAME=fatfs build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/fatfs'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/fatfs'
+Target 'component-fatfs-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/fatfs/libfatfs.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/freertos -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/freertos/component.mk COMPONENT_NAME=freertos build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/freertos'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/freertos'
+Target 'component-freertos-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/freertos/libfreertos.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/heap -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/heap/component.mk COMPONENT_NAME=heap build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/heap'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/heap'
+Target 'component-heap-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/heap/libheap.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/jsmn -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/jsmn/component.mk COMPONENT_NAME=jsmn build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/jsmn'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/jsmn'
+Target 'component-jsmn-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/jsmn/libjsmn.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/json -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/json/component.mk COMPONENT_NAME=json build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/json'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/json'
+Target 'component-json-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/json/libjson.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/libsodium -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/libsodium/component.mk COMPONENT_NAME=libsodium build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/libsodium'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/libsodium'
+Target 'component-libsodium-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/libsodium/liblibsodium.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/log -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/log/component.mk COMPONENT_NAME=log build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/log'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/log'
+Target 'component-log-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/log/liblog.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/lwip -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/lwip/component.mk COMPONENT_NAME=lwip build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/lwip'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/lwip'
+Target 'component-lwip-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/lwip/liblwip.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/main -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/main/component.mk COMPONENT_NAME=main build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/main'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/main'
+Target 'component-main-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/main/libmain.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/mbedtls -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/mbedtls/component.mk COMPONENT_NAME=mbedtls build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/mbedtls'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/mbedtls'
+Target 'component-mbedtls-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/mbedtls/libmbedtls.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/mdns -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/mdns/component.mk COMPONENT_NAME=mdns build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/mdns'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/mdns'
+Target 'component-mdns-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/mdns/libmdns.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/micro-ecc -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/micro-ecc/component.mk COMPONENT_NAME=micro-ecc build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/micro-ecc'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/micro-ecc'
+Target 'component-micro-ecc-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/micro-ecc/libmicro-ecc.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/newlib -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/newlib/component.mk COMPONENT_NAME=newlib build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/newlib'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/newlib'
+Target 'component-newlib-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/newlib/libnewlib.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/nghttp -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/nghttp/component.mk COMPONENT_NAME=nghttp build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/nghttp'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/nghttp'
+Target 'component-nghttp-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/nghttp/libnghttp.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/nvs_flash -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/nvs_flash/component.mk COMPONENT_NAME=nvs_flash build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/nvs_flash'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/nvs_flash'
+Target 'component-nvs_flash-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/nvs_flash/libnvs_flash.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/openssl -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/openssl/component.mk COMPONENT_NAME=openssl build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/openssl'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/openssl'
+Target 'component-openssl-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/openssl/libopenssl.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/pthread -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/pthread/component.mk COMPONENT_NAME=pthread build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/pthread'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/pthread'
+Target 'component-pthread-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/pthread/libpthread.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/sdmmc -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/sdmmc/component.mk COMPONENT_NAME=sdmmc build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/sdmmc'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/sdmmc'
+Target 'component-sdmmc-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/sdmmc/libsdmmc.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/soc -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/soc/component.mk COMPONENT_NAME=soc build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/soc'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/soc'
+Target 'component-soc-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/soc/libsoc.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/spi_flash -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/spi_flash/component.mk COMPONENT_NAME=spi_flash build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/spi_flash'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/spi_flash'
+Target 'component-spi_flash-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/spi_flash/libspi_flash.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/spiffs -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/spiffs/component.mk COMPONENT_NAME=spiffs build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/spiffs'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/spiffs'
+Target 'component-spiffs-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/spiffs/libspiffs.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/tcpip_adapter -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/tcpip_adapter/component.mk COMPONENT_NAME=tcpip_adapter build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/tcpip_adapter'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/tcpip_adapter'
+Target 'component-tcpip_adapter-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/tcpip_adapter/libtcpip_adapter.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/ulp -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/ulp/component.mk COMPONENT_NAME=ulp build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/ulp'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/ulp'
+Target 'component-ulp-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/ulp/libulp.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/vfs -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/vfs/component.mk COMPONENT_NAME=vfs build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/vfs'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/vfs'
+Target 'component-vfs-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/vfs/libvfs.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/wear_levelling -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/wear_levelling/component.mk COMPONENT_NAME=wear_levelling build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/wear_levelling'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/wear_levelling'
+Target 'component-wear_levelling-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/wear_levelling/libwear_levelling.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/wpa_supplicant -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/wpa_supplicant/component.mk COMPONENT_NAME=wpa_supplicant build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/wpa_supplicant'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/wpa_supplicant'
+Target 'component-wpa_supplicant-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/wpa_supplicant/libwpa_supplicant.a'
+make -C C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/xtensa-debug-module -f C:/msys32/home/Cundell/esp-idf/make/component_wrapper.mk COMPONENT_MAKEFILE=C:/msys32/home/Cundell/esp-idf/components/xtensa-debug-module/component.mk COMPONENT_NAME=xtensa-debug-module build
+make[1]: Entering directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/xtensa-debug-module'
+make[1]: Nothing to be done for 'build'.
+make[1]: Leaving directory 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/xtensa-debug-module'
+Target 'component-xtensa-debug-module-build' responsible for 'C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/xtensa-debug-module/libxtensa-debug-module.a'
+Flashing binaries to serial port COM11 (app at offset 0x10000)...
+python C:/msys32/home/Cundell/esp-idf/components/esptool_py/esptool/esptool.py --chip esp32 --port "COM11" --baud 115200 --before "default_reset" --after "hard_reset" write_flash -z --flash_mode "dio" --flash_freq "40m" --flash_size detect 0x1000 C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/bootloader/bootloader.bin 0x10000 C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/blink.bin 0x8000 C:/Users/Cundell/Source/Thesis_2017/Firmware/ESP-32/AccelMonitor/build/partitions.bin
+esptool.py v2.1
+Connecting....
+Chip is ESP32D0WDQ6 (revision 0)
+Uploading stub...
+Running stub...
+Stub running...
+Configuring flash size...
+Auto-detected Flash size: 4MB
+Compressed 17792 bytes to 10477...
+
+Writing at 0x00001000... (100 %)
+Wrote 17792 bytes (10477 compressed) at 0x00001000 in 0.9 seconds (effective 151.6 kbit/s)...
+Hash of data verified.
+Compressed 565136 bytes to 348440...
+
+Writing at 0x00010000... (4 %)
+Writing at 0x00014000... (9 %)
+Writing at 0x00018000... (13 %)
+Writing at 0x0001c000... (18 %)
+Writing at 0x00020000... (22 %)
+Writing at 0x00024000... (27 %)
+Writing at 0x00028000... (31 %)
+Writing at 0x0002c000... (36 %)
+Writing at 0x00030000... (40 %)
+Writing at 0x00034000... (45 %)
+Writing at 0x00038000... (50 %)
+Writing at 0x0003c000... (54 %)
+Writing at 0x00040000... (59 %)
+Writing at 0x00044000... (63 %)
+Writing at 0x00048000... (68 %)
+Writing at 0x0004c000... (72 %)
+Writing at 0x00050000... (77 %)
+Writing at 0x00054000... (81 %)
+Writing at 0x00058000... (86 %)
+Writing at 0x0005c000... (90 %)
+Writing at 0x00060000... (95 %)
+Writing at 0x00064000... (100 %)
+Wrote 565136 bytes (348440 compressed) at 0x00010000 in 31.1 seconds (effective 145.4 kbit/s)...
+Hash of data verified.
+Compressed 3072 bytes to 97...
+
+Writing at 0x00008000... (100 %)
+Wrote 3072 bytes (97 compressed) at 0x00008000 in 0.0 seconds (effective 956.7 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting...
+
+20:48:28 Build Finished (took 44s.645ms)
+

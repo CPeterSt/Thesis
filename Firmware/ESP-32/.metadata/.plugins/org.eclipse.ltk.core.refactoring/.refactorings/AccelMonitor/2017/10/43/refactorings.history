@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;AccelMonitor/main/CalcFnction.h&apos; to &apos;CalcFunctions.h&apos;" description="Rename resource &apos;CalcFnction.h&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="main/CalcFnction.h" name="CalcFunctions.h" stamp="1508809626949" updateReferences="true"/>
+</session>

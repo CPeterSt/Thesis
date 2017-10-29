@@ -1,0 +1,138 @@
+/*
+ * SDHC_Manager.c
+ *
+ *  Created on: 23 Aug 2017
+ *      Author: Cundell
+ */
+
+#include "SDHC_Manager.h"
+
+static const char *TAG = "example";
+
+// This example can use SDMMC and SPI peripherals to communicate with SD card.
+// By default, SDMMC peripheral is used.
+// To enable SPI mode, uncomment the following line:
+#define SD_ENABLE 18
+
+void SD_Init(void)
+{
+	gpio_pad_select_gpio(SD_ENABLE);
+	gpio_set_direction(SD_ENABLE, GPIO_MODE_OUTPUT);
+	gpio_set_level(SD_ENABLE, 1);
+
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Info_code, "\nInitializing SD card");
+
+#ifndef USE_SPI_MODE
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Using SDMMC peripheral");
+	sdmmc_host_t host = SDMMC_HOST_DEFAULT();
+
+	// To use 1-line SD mode, uncomment the following line:
+	// host.flags = SDMMC_HOST_FLAG_1BIT;
+
+	// This initializes the slot without card detect (CD) and write protect (WP) signals.
+	// Modify slot_config.gpio_cd and slot_config.gpio_wp if your board has these signals.
+	sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
+
+#else
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Using SPI peripheral");
+
+	sdmmc_host_t host = SDSPI_HOST_DEFAULT();
+	sdspi_slot_config_t slot_config = SDSPI_SLOT_CONFIG_DEFAULT();
+	slot_config.gpio_miso = PIN_NUM_MISO;
+	slot_config.gpio_mosi = PIN_NUM_MOSI;
+	slot_config.gpio_sck  = PIN_NUM_CLK;
+	slot_config.gpio_cs   = PIN_NUM_CS;
+	// This initializes the slot without card detect (CD) and write protect (WP) signals.
+	// Modify slot_config.gpio_cd and slot_config.gpio_wp if your board has these signals.
+#endif //USE_SPI_MODE
+
+	// Options for mounting the filesystem.
+	// If format_if_mount_failed is set to true, SD card will be partitioned and
+	// formatted in case when mounting fails.
+	esp_vfs_fat_sdmmc_mount_config_t mount_config = {
+			.format_if_mount_failed = false,
+			.max_files = 5
+	};
+
+	// Use settings defined above to initialize SD card and mount FAT filesystem.
+	// Note: esp_vfs_fat_sdmmc_mount is an all-in-one convenience function.
+	// Please check its source code and implement error recovery when developing
+	// production applications.
+	sdmmc_card_t* card;
+	esp_err_t ret = esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
+
+	if (ret != ESP_OK) {
+		if (ret == ESP_FAIL) {
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Failed to mount filesystem. "
+					"If you want the card to be formatted, set format_if_mount_failed = true.");
+
+
+		} else {
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Failed to initialize the card (%d). "
+					"Make sure SD card lines have pull-up resistors in place.");
+		}
+		gpio_set_level(SD_ENABLE, 0);
+
+		return;
+	}
+
+	// Card has been initialized, print its properties
+	sdmmc_card_print_info(stdout, card);
+
+	// Use POSIX and C standard library functions to work with files.
+	// First create a file.
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Opening file");
+
+	FILE* f = fopen("/sdcard/hello.txt", "w");
+	if (f == NULL) {
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Failed to open file for writing");
+		gpio_set_level(SD_ENABLE, 0);
+
+		return;
+	}
+	fprintf(f, "Hello %s!\n", card->cid.name);
+	fclose(f);
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "File written");
+
+	// Check if destination file exists before renaming
+	struct stat st;
+	if (stat("/sdcard/foo.txt", &st) == 0) {
+		// Delete it if it exists
+		unlink("/sdcard/foo.txt");
+	}
+
+	// Rename original file
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Renaming file");
+	if (rename("/sdcard/hello.txt", "/sdcard/foo.txt") != 0) {
+		ESP_LOGE(TAG, "Rename failed");
+		gpio_set_level(SD_ENABLE, 0);
+
+		return;
+	}
+
+	// Open renamed file for reading
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Reading file");
+	f = fopen("/sdcard/foo.txt", "r");
+	if (f == NULL) {
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Failed to open file for reading");
+		gpio_set_level(SD_ENABLE, 0);
+
+		return;
+	}
+	char line[64];
+	fgets(line, sizeof(line), f);
+	fclose(f);
+	// strip newline
+	char* pos = strchr(line, '\n');
+	if (pos) {
+		*pos = '\0';
+	}
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Reading file");
+	ESP_LOGI(TAG, "Read from file: '%s'", line);
+
+	// All done, unmount partition and disable SDMMC or SPI peripheral
+	esp_vfs_fat_sdmmc_unmount();
+	ESP_LOGI(TAG, "Card unmounted");
+	gpio_set_level(SD_ENABLE, 0);
+
+}

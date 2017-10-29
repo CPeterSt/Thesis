@@ -1,0 +1,517 @@
+/*
+ * NVSManager.c
+ *
+ *  Created on: 19 Aug 2017
+ *      Author: Cundell
+ */
+
+#include "NVSManager.h"
+#include "nvs_flash.h"
+#include "nvs.h"
+#include "esp_err.h"
+
+
+esp_err_t initialize_nvs(void)
+{
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting");
+
+	esp_err_t err = nvs_flash_init();
+	if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
+		// NVS partition was truncated and needs to be erased
+		const esp_partition_t* nvs_partition = esp_partition_find_first(
+				ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
+		assert(nvs_partition && "partition table must have an NVS partition");
+		ESP_ERROR_CHECK( esp_partition_erase_range(nvs_partition, 0, nvs_partition->size) );
+		// Retry nvs_flash_init
+		err = nvs_flash_init();
+	}
+
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Info_code, "Success");
+
+	return err;
+}
+
+/* Save the number of module restarts in NVS
+   by first reading and then incrementing
+   the number that has been saved previously.
+   Return an error if anything goes wrong
+   during this process.
+ */
+esp_err_t save_restart_counter(void)
+{
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting");
+
+	nvs_handle my_handle;
+	esp_err_t err;
+
+	// Open
+	err = nvs_open("RestartCountNS", NVS_READWRITE, &my_handle);
+	if (err != ESP_OK)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+
+	// Read
+	int32_t restart_counter = 0; // value will default to 0, if not set yet in NVS
+	err = nvs_get_i32(my_handle, "restart_conter", &restart_counter);
+	if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+
+	// Write
+	restart_counter++;
+	err = nvs_set_i32(my_handle, "restart_conter", restart_counter);
+	if (err != ESP_OK)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+
+	// Commit written value.
+	// After setting any values, nvs_commit() must be called to ensure changes are written
+	// to flash storage. Implementations may write to storage at other times,
+	// but this is not guaranteed.
+	err = nvs_commit(my_handle);
+	if (err != ESP_OK)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+
+	// Close
+	nvs_close(my_handle);
+
+	if(err == 0)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Info_code, "Success");
+	}else
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+	}
+
+	return ESP_OK;
+}
+
+/* Save the number of module restarts in NVS
+   by first reading and then incrementing
+   the number that has been saved previously.
+   Return an error if anything goes wrong
+   during this process.
+ */
+esp_err_t save_Time_NVS(int64_t timeVal)
+{
+	//debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting");
+
+	nvs_handle my_handle;
+	esp_err_t err;
+
+	// Open
+	err = nvs_open("Time_Name_Space", NVS_READWRITE, &my_handle);
+	if (err != ESP_OK)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error (%d) opening NVS handle!\n", err);
+		return err;
+	}
+
+	err = nvs_erase_all(my_handle);
+
+	err = nvs_set_i64(my_handle, "Time_Name_Space", timeVal);
+	if (err != ESP_OK)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+
+	// Commit written value.
+	// After setting any values, nvs_commit() must be called to ensure changes are written
+	// to flash storage. Implementations may write to storage at other times,
+	// but this is not guaranteed.
+	err = nvs_commit(my_handle);
+	if (err != ESP_OK)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+
+	// Close
+	nvs_close(my_handle);
+
+	if(err == 0)
+	{
+		//debug_Write(__FILE__, __FUNCTION__, __LINE__, Info_code, "Success");
+	}else
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+	}
+
+
+	return 0;
+}
+
+esp_err_t read_Time_NVS(int64_t *timeVal)
+{
+	// Open
+	esp_err_t err;
+
+	nvs_handle my_handle;
+	err = nvs_open("Time_Name_Space", NVS_READWRITE, &my_handle);
+	if (err != ESP_OK) {
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error (%d) opening NVS handle!", err);
+		return err;
+	} else {
+
+		err = nvs_get_i64(my_handle, "Time_Name_Space", timeVal);
+		printf("Time a: %lld\n", timeVal[0]);
+		switch (err) {
+		case ESP_OK:
+
+			break;
+		case ESP_ERR_NVS_NOT_FOUND:
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "The value is not initialized yet!", err);
+			return err;
+			break;
+		default :
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error (%d) reading!", err);
+			return err;
+		}
+
+		// Commit written value.
+		// After setting any values, nvs_commit() must be called to ensure changes are written
+		// to flash storage. Implementations may write to storage at other times,
+		// but this is not guaranteed.
+		err = nvs_commit(my_handle);
+		if (err != ESP_OK)
+		{
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+			return err;
+		}
+
+		// Close
+		nvs_close(my_handle);
+
+		if(err == 0)
+		{
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Info_code, "Success");
+		}else
+		{
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		}
+	}
+	return ESP_OK;
+}
+
+
+esp_err_t save_i64_NVS(int64_t i64Val, char * nameSpace)
+{
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting");
+
+	nvs_handle my_handle;
+	esp_err_t err;
+
+	// Open
+	err = nvs_open(nameSpace, NVS_READWRITE, &my_handle);
+	if (err != ESP_OK)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error (%d) opening NVS handle!\n", err);
+		return err;
+	}
+
+	err = nvs_erase_all(my_handle);
+
+	err = nvs_set_i64(my_handle, nameSpace, i64Val);
+	if (err != ESP_OK)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+
+	// Commit written value.
+	// After setting any values, nvs_commit() must be called to ensure changes are written
+	// to flash storage. Implementations may write to storage at other times,
+	// but this is not guaranteed.
+	err = nvs_commit(my_handle);
+	if (err != ESP_OK)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+
+	// Close
+	nvs_close(my_handle);
+
+	if(err == 0)
+	{
+		//debug_Write(__FILE__, __FUNCTION__, __LINE__, Info_code, "Success");
+	}else
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+	}
+
+
+	return 0;
+}
+
+
+esp_err_t read_i64_NVS(int64_t * i64Val, char * nameSpace)
+{
+	// Open
+	esp_err_t err;
+
+	nvs_handle my_handle;
+	err = nvs_open(nameSpace, NVS_READWRITE, &my_handle);
+	if (err != ESP_OK) {
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error (%d) opening NVS handle!", err);
+		return err;
+	} else {
+
+		err = nvs_get_i64(my_handle, nameSpace, i64Val);
+		switch (err) {
+		case ESP_OK:
+
+			break;
+		case ESP_ERR_NVS_NOT_FOUND:
+			i64Val[0] = -1;
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "The value is not initialised yet!", err);
+			return err;
+			break;
+		default :
+			i64Val[0] = -1;
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error (%d) reading!", err);
+			return err;
+		}
+
+		// Commit written value.
+		// After setting any values, nvs_commit() must be called to ensure changes are written
+		// to flash storage. Implementations may write to storage at other times,
+		// but this is not guaranteed.
+		err = nvs_commit(my_handle);
+		if (err != ESP_OK)
+		{
+			i64Val[0] = -1;
+
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+			return err;
+		}
+
+		// Close
+		nvs_close(my_handle);
+
+		if(err == ESP_OK)
+		{
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Info_code, "Success");
+		}else
+		{
+			i64Val[0] = -1;
+
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		}
+	}
+	return ESP_OK;
+}
+
+esp_err_t clear_all_nvs(char * msg, ...)
+{
+	char* storageNameSpace; ;
+	va_list args;
+
+	va_start(args, msg);
+
+	if(0 > vasprintf(&storageNameSpace, msg, args)) storageNameSpace = NULL;    //this is for logging, so failed allocation is not fatal
+	va_end(args);
+
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting");
+
+	nvs_handle my_handle;
+	esp_err_t err;
+
+	// Open
+	err = nvs_open(storageNameSpace, NVS_READWRITE, &my_handle);
+	if (err != ESP_OK)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+
+	err = nvs_erase_all(my_handle);
+	nvs_close(my_handle);
+
+	if(err == 0)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Info_code, "Success");
+	}else
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+	}
+
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Info_code, "Success");
+
+	return ESP_OK;
+}
+
+/* Save new run time value in NVS
+   by first reading a table of previously saved values
+   and then adding the new value at the end of the table.
+   Return an error if anything goes wrong
+   during this process.
+ */
+esp_err_t save_to_nvs(char* myChar, uint16_t * currentSize, char * msg, ...)
+{
+	char* storageNameSpace; ;
+	va_list args;
+
+	va_start(args, msg);
+
+	if(0 > vasprintf(&storageNameSpace, msg, args)) storageNameSpace = NULL;    //this is for logging, so failed allocation is not fatal
+	va_end(args);
+
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Info_code, "Starting");
+
+	nvs_handle my_handle;
+	esp_err_t err;
+
+	// Open
+	err = nvs_open(storageNameSpace, NVS_READWRITE, &my_handle);
+	if (err != ESP_OK)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "nvs_open");
+
+	// Read the size of memory space required for blob
+	size_t required_size = 0;  // value will default to 0, if not set yet in NVS
+	err = nvs_get_blob(my_handle, storageNameSpace, NULL, &required_size);
+	if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+
+	// Read previously saved blob if available
+	char * array1 = calloc(1984, sizeof(char));
+
+	if (required_size > 0) {
+		err = nvs_get_blob(my_handle, storageNameSpace, array1, &required_size);
+		if (err != ESP_OK)
+		{
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+			return err;
+		}
+	}
+
+	char * array = calloc(1984, sizeof(char));
+	printf("\n%d, %d, %d\n",strlen(myChar), strlen(array1), strlen(array));
+	if (required_size != 0) {
+		strcpy(array, array1);
+		strcat(array, myChar);
+
+	}else
+	{
+		strcpy(array, myChar);
+	}
+	free(array1);
+	//printf("\narray: %s,%d\n", array, strlen(array));
+
+
+	// Write value including previously saved blob if available
+	required_size = 1984;
+	err = nvs_set_blob(my_handle, storageNameSpace, array, required_size);
+	currentSize[0] = strlen(array);
+
+	if (err != ESP_OK)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+
+	free(array);
+
+	// Commit
+	err = nvs_commit(my_handle);
+	if (err != ESP_OK)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Commit");
+
+	// Close
+	nvs_close(my_handle);
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "nvs_close");
+
+
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Info_code, "Success");
+
+	return ESP_OK;
+}
+
+/* Read from NVS and print restart counter
+   and the table with run times.
+   Return an error if anything goes wrong
+   during this process.
+ */
+esp_err_t print_nvs(char * msg, ...)
+{
+	char* storageNameSpace; ;
+	va_list args;
+
+	va_start(args, msg);
+
+	if(0 > vasprintf(&storageNameSpace, msg, args)) storageNameSpace = NULL;    //this is for logging, so failed allocation is not fatal
+	va_end(args);
+
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting");
+
+	nvs_handle my_handle;
+	esp_err_t err;
+
+	// Open
+	err = nvs_open(storageNameSpace, NVS_READWRITE, &my_handle);
+	if (err != ESP_OK)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+	// Read restart counter
+	int32_t restart_counter = 0; // value will default to 0, if not set yet in NVS
+	err = nvs_get_i32(my_handle, "restart_conter", &restart_counter);
+	if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+	// Read run time blob
+	size_t required_size = 0;  // value will default to 0, if not set yet in NVS
+	// obtain required memory space to store blob being read from NVS
+	err = nvs_get_blob(my_handle, "Accel", NULL, &required_size);
+	if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+		return err;
+	}
+	if (required_size == 0) {
+		printf("Nothing saved yet!\n");
+	} else {
+		char* run_time = malloc(required_size);
+		err = nvs_get_blob(my_handle, "Accel", run_time, &required_size);
+		if (err != ESP_OK)
+		{
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error: %d", err);
+			return err;
+		}
+		printf("%s" , run_time);
+		free(run_time);
+	}
+
+	// Close
+	nvs_close(my_handle);
+
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Info_code, "Success");
+
+	return ESP_OK;
+}
+
+

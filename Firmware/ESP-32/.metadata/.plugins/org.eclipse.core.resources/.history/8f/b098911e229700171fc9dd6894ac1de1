@@ -1,0 +1,39 @@
+/*
+ * ClacFunctions.c
+ *
+ *  Created on: 25 Aug 2017
+ *      Author: Cundell
+ */
+
+#include<math.h>
+#include"CalcFnction.h";
+/*
+ * Converts cartesian to spherical coords
+ * cartesian {x, y, z}
+ * spherical {p, theta, phi) (angles in radians)
+ *
+ */
+void CartToSpherical(double * cartesian, double * spherical)
+{
+	double rho = sqrt(pow(cartesian[0], 2) + pow(cartesian[1], 2) + pow(cartesian[2], 2));
+	double r = 	sqrt(pow(cartesian[0], 2) + pow(cartesian[1], 2));
+	double phi = 0;
+	if (rho != 0)
+	{
+		phi = asin(r/rho);
+	}
+
+	double theta = 0;
+
+	if (r != 0)
+	{
+		theta = asin(cartesian[1]/r);
+	}
+
+	spherical[0] = rho;
+	spherical[1] = theta;
+	spherical[2] = phi;
+}
+
+
+

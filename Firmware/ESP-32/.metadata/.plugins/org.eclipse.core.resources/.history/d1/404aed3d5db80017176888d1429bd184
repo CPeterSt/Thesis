@@ -1,0 +1,57 @@
+/*
+ * ClacFunctions.c
+ *
+ *  Created on: 25 Aug 2017
+ *      Author: Cundell
+ */
+
+#include<math.h>
+#include"CalcFnction.h"
+/*Converts Cartesian to Spherical coordinates
+ * INPUT 	-- XYZ[0] = X, XYZ[1] = Y, XYZ[2] = Z
+ * OUTPUT 	-- sphere[0] = r, sphere[1] = theta, sphere[2] = phi
+ */
+void CartToSpherical(double * XYZ, double* sphere)
+{
+
+	double r = sqrt(pow(XYZ[0],2) + pow(XYZ[1], 2) + pow(XYZ[2], 2));
+	sphere[0] = r;
+
+	if(XYZ[0] == 0)
+	{
+		XYZ[0] = 0.000000001;
+	}
+
+	double theta = atan(XYZ[1]/XYZ[0]);
+
+	sphere[1] = theta*(180.0 / M_PI);
+	if(XYZ[0] < 0 && XYZ[1] > 0)
+	{
+		sphere[1] = 180 + sphere[1];
+	}else if(XYZ[0] < 0 && XYZ[1] < 0)
+	{
+		sphere[1] = -180 + sphere[1];
+	}
+	if(r != 0)
+	{
+		double phi = acos(XYZ[2]/r);
+		sphere[2] = phi* (180.0 / M_PI);
+	}else
+	{
+		sphere[2] = 0;
+	}
+}
+
+/*Converts Spherical to Cartesian coordinates
+ * INPUT 	-- XYZ[0] = X, XYZ[1] = Y, XYZ[2] = Z
+ * OUTPUT 	-- Spher[0] = r, Spher[1] = theta, Spher[2] = phi
+ */
+void SphericalToCart(double * XYZ, double* sphere)
+{
+	double rou = sphere[0]*sin(sphere[2]*(M_PI/180.0));
+	XYZ[0] = rou*cos(sphere[1]*(M_PI/180.0));
+	XYZ[1] = rou*sin(sphere[1]*(M_PI/180.0));
+	XYZ[2] = sphere[0]*cos(sphere[2]*(M_PI/180.0));
+}
+
+

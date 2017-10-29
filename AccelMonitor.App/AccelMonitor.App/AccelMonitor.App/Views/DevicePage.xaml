@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AccelMonitor.App.Views.DevicePage"
+             Title="{Binding Title}">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Disconnect" Clicked="ToolbarItem_Clicked"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <StackLayout x:Name="OverallSLayout" VerticalOptions="Center"
+                     HorizontalOptions="Center">
+
+            <StackLayout x:Name="ConnectSLayout"
+                     IsVisible="True">
+
+                <Label Text="Please connect to a device" />
+                <Button Text="Connect"
+                    Clicked="Button_Clicked"
+                    BackgroundColor="{StaticResource Primary}"/>
+                <ActivityIndicator x:Name="actIndicator" IsRunning="False"/>
+
+
+            </StackLayout>
+
+            <StackLayout x:Name="LoadingSLayout" 
+                     IsVisible="False">
+                <Label x:Name="LoadingText" FontSize="30"/>
+                <ActivityIndicator x:Name="LoadingActIndicator" IsRunning="True"/>
+            </StackLayout>
+
+            <StackLayout x:Name="NormalSLayout"
+                     IsVisible="False">
+                <ListView x:Name="DeviceControlList"
+                            HasUnevenRows="true"
+                          ItemTapped="ItemsListView_ItemTapped">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <StackLayout Padding="10" Orientation="Vertical">
+                                    <Label Text="{Binding Text}"
+                                            LineBreakMode="NoWrap"
+                                            Style="{DynamicResource ListItemTextStyle}"
+                                            FontSize="16"/>
+                                    <Entry Text="{Binding Data}"
+                                           Keyboard="Numeric"
+                                        IsVisible="{Binding DataVisable}" />
+                                </StackLayout>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackLayout>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

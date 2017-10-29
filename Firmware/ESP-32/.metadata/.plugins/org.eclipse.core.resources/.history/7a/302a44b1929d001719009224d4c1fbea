@@ -1,0 +1,32 @@
+/*
+ * NVSManager.h
+ *
+ *  Created on: 19 Aug 2017
+ *      Author: Cundell
+ */
+
+//#include <stdio.h>
+//#include "freertos/FreeRTOS.h"
+//#include "freertos/task.h"
+#include "driver/gpio.h"
+//#include "sdkconfig.h"
+//#include "esp_system.h"
+//#include "esp_partition.h"
+#include "nvs_flash.h"
+#include "nvs.h"
+//#include <string.h>
+#include "Utilities.h"
+
+
+#ifndef MAIN_NVSMANAGER_H_
+#define MAIN_NVSMANAGER_H_
+
+#define STORAGE_NAMESPACE "storage"
+
+esp_err_t initialize_nvs(void);
+esp_err_t save_restart_counter(void);
+esp_err_t save_to_nvs(char* myChar, char * msg, ...);
+esp_err_t clear_all_nvs(char * msg, ...);
+esp_err_t print_nvs(char * msg, ...);
+
+#endif /* MAIN_NVSMANAGER_H_ */

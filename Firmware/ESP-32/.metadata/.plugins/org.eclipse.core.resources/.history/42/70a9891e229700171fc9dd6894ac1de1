@@ -1,0 +1,15 @@
+/*
+ * CalcFnction.h
+ *
+ *  Created on: 25 Aug 2017
+ *      Author: Cundell
+ */
+
+#ifndef MAIN_CALCFNCTION_H_
+#define MAIN_CALCFNCTION_H_
+
+void CartToSpherical(double * cartesian, double * spherical);
+
+
+
+#endif /* MAIN_CALCFNCTION_H_ */

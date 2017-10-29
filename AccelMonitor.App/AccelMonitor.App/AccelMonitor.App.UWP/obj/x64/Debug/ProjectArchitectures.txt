@@ -1,0 +1,2 @@
+C:\Users\Cundell\Source\Thesis_2017\AccelMonitor.App\AccelMonitor.App\AccelMonitor.App.UWP\AccelMonitor.App.UWP.csproj;x64
+C:\Users\Cundell\Source\Thesis_2017\AccelMonitor.App\AccelMonitor.App\AccelMonitor.App\AccelMonitor.App.csproj;neutral

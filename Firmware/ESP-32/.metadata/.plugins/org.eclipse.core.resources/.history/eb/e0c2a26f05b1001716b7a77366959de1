@@ -1,0 +1,181 @@
+/* Wear levelling and FAT filesystem example.
+   This example code is in the Public Domain (or CC0 licensed, at your option.)
+
+   Unless required by applicable law or agreed to in writing, this
+   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+   CONDITIONS OF ANY KIND, either express or implied.
+
+   This sample shows how to store files inside a FAT filesystem.
+   FAT filesystem is stored in a partition inside SPI flash, using the
+   flash wear levelling library.
+ */
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "esp_vfs.h"
+#include "esp_vfs_fat.h"
+#include "esp_system.h"
+#include "FileManager.h"
+#include "SDHC_Manager.h"
+
+
+FILE *sdFile;
+FILE *f;
+// Handle of the wear levelling library instance
+static wl_handle_t s_wl_handle = WL_INVALID_HANDLE;
+
+// Mount path for the partition
+const char *base_path = "/spiflash";
+
+esp_err_t File_Init()
+{
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting");
+
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Mounting FAT file system");
+
+
+	// To mount device we need name of device partition, define base_path
+	// and allow format partition in case if it is new one and was not formated before
+	const esp_vfs_fat_mount_config_t mount_config = {
+			.max_files = 4,
+			.format_if_mount_failed = true
+	};
+	esp_err_t err = esp_vfs_fat_spiflash_mount(base_path, "storage", &mount_config, &s_wl_handle);
+	if (err != ESP_OK) {
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Failed to mount FATFS (0x%x)", err);
+		return ESP_FAIL;
+	}
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "File Mounted");
+
+	return ESP_OK;
+
+}
+
+esp_err_t WriteFile(char*fileName, char * msg, ...)
+{
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting");
+
+	gpio_set_level(16, 1);
+
+	char* string;
+
+	va_list args;
+
+	va_start(args, msg);
+
+	if(0 > vasprintf(&string, msg, args)) string = NULL;    //this is for logging, so failed allocation is not fatal
+	va_end(args);
+	uint32_t size = 0;
+
+	f = fopen("/spiflash/Data.txt", "ab");
+	if (f == NULL) {
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Failed to open spiflash file for writing");
+		return ESP_FAIL;
+	}else
+	{
+		fprintf(f, string);
+		fseek(f, 0, SEEK_END); // seek to end of file
+		size = ftell(f); // get current file pointer
+	}
+
+	if(size >= MAX_FILE_SIZE)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "VFS reached MAX_FILE_SIZE");
+		gpio_set_level(PIN_SD_ENABLE, 0);
+
+
+		if (sdFile == NULL) {
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Failed to open SD file for writing");
+			//SDCardUnmount();
+			return ESP_FAIL;
+
+		}else
+		{
+			int ch;
+			sdFile = fopen("/sdcard/SDData.txt", "a+b");
+			printf("Moving to SD Card");
+			uint16_t fileCharCounter = 0;
+			fseek(f, 0, SEEK_SET); // seek to end of file
+			printf("size:%d\n\n", size);
+			for(fileCharCounter = 1; fileCharCounter < size; fileCharCounter++)
+			{
+				ch = fgetc(f);
+				printf("%c", ch);
+				fputc(ch, sdFile);
+			}
+			printf("Finished Moving to SD Card");
+			while(fclose(f) != 0)
+			{
+				vTaskDelay(10 / portTICK_PERIOD_MS);
+				debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Unable to close file");
+
+			}
+			fclose(sdFile);
+			f = fopen("/spiflash/Data.txt", "wb");
+			fclose(f);
+			//SDCardUnmount();
+			//ClearSPIFlashFile("Data.txt");
+		}
+	}
+	gpio_set_level(16, 0);
+
+	free(string);
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "File written");
+	return ESP_OK;
+}
+
+esp_err_t ClearSPIFlashFile(char*fileName)
+{
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting");
+
+	if(f != NULL)
+	{
+		fclose(f);
+	}
+	f = fopen("/spiflash/Data.txt", "wb");
+
+	if (f == NULL) {
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Failed to open file for writing");
+	}
+
+
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "File cleared");
+	return ESP_OK;
+}
+
+//esp_err_t ReadFileLine(char*fileName, char * msg)
+//{
+//	// Open file for reading
+//	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting");
+//
+//	char fName[64] = {0};
+//	sprintf(fName, "/spiflash/%s", fileName);
+//	FILE *f = fopen(fName, "rb");
+//
+//	if (f == NULL) {
+//		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Failed to open file for reading 1");
+//	}
+//
+//	fgets(line,	255, f);
+//	char *pos = strchr(line, '\n');
+//	if (pos) {
+//		*pos = '\0';
+//	}
+//	printf("'%s'", line);
+//	fclose(f);
+//	return ESP_OK;
+//
+//}
+
+void FileUnmount()
+{
+
+	fclose(f);
+	// Unmount FATFS
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting");
+	ESP_ERROR_CHECK( esp_vfs_fat_spiflash_unmount(base_path, s_wl_handle));
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Done");
+}
+
+

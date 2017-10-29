@@ -1,0 +1,461 @@
+#include "WiFiManager.h"
+#include "esp_wifi.h"
+#include "esp_err.h"
+#include <lwip/sockets.h>
+#include "AccelMonitor.h"
+#include "Utilities.h"
+#include "FileManager.h"
+
+#define PORT_NUMBER 8884
+
+static char socketTAG[] = "socket_server";
+int clientSock = 0;
+
+uint8_t packetACKNAK[256] = {0};
+
+uint8_t transmit_PacketNo = 0;
+uint16_t samplePeriod = 20;
+uint16_t sampleCount = 5;
+
+esp_err_t event_handler(void *ctx, system_event_t *event)
+{
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Event Triggered");
+
+	switch(event->event_id) {
+	case SYSTEM_EVENT_STA_START:
+		ESP_LOGD(__func__, "started");
+		break;
+	case SYSTEM_EVENT_SCAN_DONE:
+		ESP_LOGD(__func__, "Scan done");
+		break;
+	case SYSTEM_EVENT_STA_CONNECTED:
+		ESP_LOGD(__func__, "connected");
+		break;
+	case SYSTEM_EVENT_STA_GOT_IP:
+		ESP_LOGD(__func__, "dhcp");
+		break;
+	case SYSTEM_EVENT_STA_STOP:
+		ESP_LOGD(__func__, "stopped");
+		break;
+	case SYSTEM_EVENT_STA_DISCONNECTED:
+		ESP_LOGD(__func__, "disconnected");
+		break;
+	case SYSTEM_EVENT_AP_STACONNECTED:
+		wifiConnected();
+		socket_server();
+		ESP_LOGD(__func__, "station connected");
+		break;
+	case SYSTEM_EVENT_AP_STADISCONNECTED:
+		ESP_LOGD(__func__, "station disconnected");\
+		wifiDisconnected();
+		break;
+	default:
+		ESP_LOGW(__func__, "Unhandled event (%d)", event->event_id);
+		break;
+	}
+	if (event->event_id == SYSTEM_EVENT_STA_GOT_IP) {
+		printf("Our IP address is " IPSTR "\n",
+				IP2STR(&event->event_info.got_ip.ip_info.ip));
+	}
+	return ESP_OK;
+}
+
+void wifiDisconnected()
+{
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "wifiDisconnected");
+
+	WiFi_Connected = 0;
+	ComsTimerCount = 0;
+}
+
+void wifiConnected()
+{
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "wifiConnected");
+
+	WiFi_Connected = 1;
+	ComsTimerCount = -1;
+}
+
+void WiFi_Config(char SSID [], char password [])
+{
+
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting");
+
+	nvs_flash_init();
+	tcpip_adapter_init();
+	ESP_ERROR_CHECK( esp_event_loop_init(event_handler, NULL) );
+	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+	ESP_ERROR_CHECK(esp_wifi_init(&cfg) );
+	ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
+	ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_AP));
+
+	/*
+	 *	if station mode is needed
+	 */
+	/*wifi_config_t sta_config = {
+	.sta = {
+	.ssid = "CKSAP1",
+	.password = "22CkfH5032e!",
+	.bssid_set = 0
+	}
+	};*/
+	wifi_config_t apConfig = {
+			.ap = {
+					.ssid="",
+					.ssid_len=0,
+					.password="",
+					.channel=0,
+					.authmode=WIFI_AUTH_WPA_WPA2_PSK,
+					.ssid_hidden=0,
+					.max_connection=1,
+					.beacon_interval=100
+			}
+	};
+
+	memcpy(apConfig.ap.ssid, SSID, strlen(SSID));
+	memcpy(apConfig.ap.password, password, strlen(password));
+
+	ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &apConfig));
+	ESP_ERROR_CHECK(esp_wifi_start());
+	/*
+	 *	if station mode is needed
+	 */
+	//ESP_ERROR_CHECK(esp_wifi_connect());
+
+}
+
+/**
+ * Create a listening socket.  We then wait for a client to connect.
+ * Once a client has connected, we then read until there is no more data
+ * and log the data read.  We then close the client socket and start
+ * waiting for a new connection.
+ */
+void socket_server(void) {
+
+	struct sockaddr_in clientAddress;
+	struct sockaddr_in serverAddress;
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Starting");
+
+	// Create a socket that we will listen upon.
+	int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (sock < 0) {
+		ESP_LOGE(socketTAG, "socket: %d %s", sock, strerror(errno));
+		goto END;
+	}
+
+	// Bind our server socket to a port.
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+	serverAddress.sin_port = htons(PORT_NUMBER);
+	int rc  = bind(sock, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
+	if (rc < 0) {
+
+		ESP_LOGE(socketTAG, "bind: %d %s", rc, strerror(errno));
+		goto END;
+	}
+
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Flag the socket as listening for new connections");
+
+	// Flag the socket as listening for new connections.
+	rc = listen(sock, 5);
+	if (rc < 0) {
+		ESP_LOGE(socketTAG, "listen: %d %s", rc, strerror(errno));
+		goto END;
+	}
+
+	while (1) {
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Listen for a new client connection");
+		wifiDisconnected();
+		// Listen for a new client connection.
+		socklen_t clientAddressLength = sizeof(clientAddress);
+		clientSock = accept(sock, (struct sockaddr *)&clientAddress, &clientAddressLength);
+		if (clientSock < 0) {
+			ESP_LOGE(socketTAG, "accept: %d %s", clientSock, strerror(errno));
+			goto END;
+		}
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "We now have a new client ...");
+		wifiConnected();
+		// We now have a new client ...
+		int total =	10*1024;
+
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Loop reading data");
+
+		// Loop reading data.
+		while(1) {
+			int sizeUsed = 0;
+			char *data = calloc(total, sizeof(char));
+
+			ssize_t sizeRead = recv(clientSock, data + sizeUsed, total-sizeUsed, 0);
+			if (sizeRead < 0) {
+				ESP_LOGE(socketTAG, "recv: %d %s", sizeRead, strerror(errno));
+				goto END;
+			}
+			if (sizeRead == 0) {
+				break;
+			}
+			sizeUsed += sizeRead;
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Received:%s", data);
+			if(SplitRecivedData(data) != ESP_OK)
+			{
+				TCPIP_Transmit("NAK");
+			}
+			free(data);
+		}
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Finished reading data");
+		wifiDisconnected();
+
+		close(clientSock);
+	}
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Info_code, "Success");
+
+	END:
+	vTaskDelete(NULL);
+}
+
+esp_err_t SplitRecivedData(char*received)
+{
+	char CommandData[10][64] = {0};
+	uint8_t receivedStrInc = 0, commandInc = 0, commandStrInc = 0;
+
+	while(received[receivedStrInc] != '\0')
+	{
+		switch(received[receivedStrInc])
+		{
+		case 0x02:
+			receivedStrInc = 0;
+			commandInc = 0;
+			commandStrInc = 0;
+			break;
+		case 0x04:
+			TCPIP_State_Machine(CommandData);
+			return ESP_OK;
+			break;
+		case ',':
+			commandStrInc++;
+			CommandData[commandInc][commandStrInc] = '\0';
+			commandInc++;
+			commandStrInc = 0;
+			break;
+		case ':':
+			commandStrInc++;
+			CommandData[commandInc][commandStrInc] = '\0';
+			commandInc++;
+			commandStrInc = 0;
+			break;
+		default:
+			CommandData[commandInc][commandStrInc] = received[receivedStrInc];
+			commandStrInc++;
+			break;
+		}
+		receivedStrInc++;
+	}
+
+	return ESP_FAIL;
+}
+
+void TCPIP_State_Machine(char received[][64])
+{
+	if(strcmp(received[0], "Device") == 0)//*************************************Device***********************************
+	{
+		if(strcmp(received[1], "Id") == 0)												//ID
+		{
+			if(strcmp(received[2], "?") == 0)
+			{
+				esp_err_t err;
+				int64_t i64Val = 0;
+				err = read_i64_NVS(&i64Val, "Id_Parameter");
+				char msg [32];
+				if(err == ESP_OK)
+				{
+					sprintf(msg, "Device:Id,%lld", i64Val);
+				}else
+				{
+					sprintf(msg, "Device:Id,Error");
+				}
+				TCPIP_Transmit(msg);
+			}else if(strcmp(received[2], "Val") == 0)// Save the device ID
+			{
+				esp_err_t err;
+				int64_t i64Val = strtoull(received[3], NULL, 0);
+				err = save_i64_NVS(i64Val, "Id_Parameter");
+
+				if (err == ESP_OK){
+					char msg [32];
+					sprintf(msg, "Device:Id,ACK");
+					TCPIP_Transmit(msg);
+				}else
+				{
+					char msg [32];
+					sprintf(msg, "Device:Id,NAK");
+					TCPIP_Transmit(msg);
+				}
+			}
+		}else if(strcmp(received[1], "Version") == 0)									//Version
+		{
+			if(strcmp(received[2], "?") == 0)
+			{
+				TCPIP_Transmit("Device:Version,%s", Version_Number);
+			}
+		}else if(strcmp(received[1], "Calibrate") == 0)									//Calibrate
+		{
+			if(strcmp(received[2], "Start") == 0)
+			{
+				if(Calabrate_Accelerometer() == ESP_OK)// Calibrate and return status
+				{
+					TCPIP_Transmit("Device:Calibrate,Finished");
+				}else
+				{
+					TCPIP_Transmit("Device:Calibrate,Failed");
+				}
+			}
+		}else if(strcmp(received[1], "SampleCount") == 0)								//SampleCount
+		{
+			if(strcmp(received[2], "?") == 0)
+			{
+				char msg [32];
+				sprintf(msg, "Device:SampleCount,%d", sampleCount);
+				TCPIP_Transmit(msg);
+			}else if(strcmp(received[2], "Val") == 0)//set the sample count
+			{
+				sampleCount = atoi(received[3]);
+				TCPIP_Transmit("Device:SampleCount,%d", sampleCount);
+			}
+		}else if(strcmp(received[1], "SamplePeriod") == 0)								//SamplePeriod
+		{
+			if(strcmp(received[2], "?") == 0)
+			{
+				char msg [32];
+				sprintf(msg, "Device:SamplePeriod,%d", samplePeriod);
+				TCPIP_Transmit(msg);
+			}else if(strcmp(received[2], "Val") == 0)//set the sample period
+			{
+				samplePeriod = atoi(received[3]);
+				TCPIP_Transmit("Device:SamplePeriod,%d", samplePeriod);
+			}
+		}
+	}else if(strcmp(received[0], "Status") == 0)//*******************************Status***********************************
+	{
+
+	}else if(strcmp(received[0], "Data") == 0)//*********************************Data*************************************
+	{
+		if(strcmp(received[1], "Send") == 0)											//Send
+		{
+			if(strcmp(received[2], "ACK") == 0)
+			{
+				// Set the byte in the check array = 1
+				printf("Send ACK received[4]:%s\n", received[4]);
+				packetACKNAK[atoi(received[4])] = 1;
+			}else if(strcmp(received[2], "All") == 0)
+			{
+				printf("Data:Send,All");
+				xTaskCreate(&ReadAndSendDataFile, "ReadAndSendDataFile", 4096, NULL, 10, NULL);
+			}
+
+		}else if(strcmp(received[1], "Clear") == 0)										//Clear
+		{
+			if(strcmp(received[2], "OnBoard") == 0)
+			{
+				printf("Data clear");
+				ClearFile("Data.txt");
+			}
+
+		}else if(strcmp(received[1], "SampleSave") == 0)								//SampleSave
+		{
+			if(strcmp(received[2], "Count") == 0)
+			{
+				uint16_t globalIntVar = atoi(received[3]);
+
+				xTaskCreate(&Sample_Save, "Sample_Save", 4096, &globalIntVar, 5, NULL);
+			}
+
+		}else if(strcmp(received[1], "SampleStream") == 0)								//SampleStream
+		{
+			if(strcmp(received[2], "Count") == 0)
+			{
+				uint16_t globalIntVar = atoi(received[3]);
+
+				xTaskCreate(&Sample_Stream, "Sample_Stream", 4096, &globalIntVar, 5, NULL);
+			}
+		}
+
+	}
+
+}
+
+int TCPIP_Transmit(char* msg, ...)
+{
+	char* dataToSend;
+	va_list args;
+
+	va_start(args, msg);
+
+	if(0 > vasprintf(&dataToSend, msg, args)) dataToSend = NULL;    //this is for logging, so failed allocation is not fatal
+	va_end(args);
+
+	debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "Strlen%d\n", strlen(dataToSend));
+
+	char * TCPIP_Transmit_Array = calloc((strlen(dataToSend) + 64), sizeof(char));
+	int sucessVal = 0;
+	char tmp[32] = {0};
+
+	sprintf(tmp,",Packet:%d", transmit_PacketNo);
+	TCPIP_Transmit_Array[0] = 0x02;
+
+	if(clientSock != 0 )
+	{
+		strcat(TCPIP_Transmit_Array, dataToSend);
+		strcat(TCPIP_Transmit_Array, tmp);
+		TCPIP_Transmit_Array[strlen(TCPIP_Transmit_Array)] = 0x04;
+
+		int sentBool = send(clientSock, TCPIP_Transmit_Array, strlen(TCPIP_Transmit_Array), 0);
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "sentBool %d", sentBool);
+
+		if(sentBool == -1 )
+		{
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "TCP Send Error");
+
+			sucessVal = -1;
+		}else
+		{
+			vTaskDelay(200 / portTICK_PERIOD_MS);
+
+			if(packetACKNAK[transmit_PacketNo] == 1)
+			{
+				debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "packetACKNAK[transmit_PacketNo] == 1");
+				packetACKNAK[transmit_PacketNo] = 0;
+				sucessVal = 1;
+			}else
+			{
+				debug_Write(__FILE__, __FUNCTION__, __LINE__, Verbose_code, "packetACKNAK[transmit_PacketNo] == 0");
+			}
+		}
+	}
+	if(transmit_PacketNo < 255)
+	{
+		transmit_PacketNo++;
+	}else
+	{
+		transmit_PacketNo = 0;
+	}
+	free(TCPIP_Transmit_Array);
+	return sucessVal;
+}
+
+void SendData_TCPIP(char * Data, uint8_t checkCounts)// 6 times the chance the data will be sent
+{
+	int whileCounter = 0;
+	char array1 [512]= {0};
+
+	while(whileCounter < (checkCounts + 1))
+	{
+		sprintf(array1, "Data:Send,Size:%d,%s", strlen(Data), Data);
+		int transmitStatus = TCPIP_Transmit(array1);
+		//printf("transmitStatus = %d\n", transmitStatus);
+		if(transmitStatus == 1)
+		{
+			break;
+		}
+		whileCounter++;
+	}
+
+}

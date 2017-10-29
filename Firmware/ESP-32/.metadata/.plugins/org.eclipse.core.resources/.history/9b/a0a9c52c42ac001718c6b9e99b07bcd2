@@ -1,0 +1,23 @@
+/*
+ * AccelMonitor.h
+ *
+ *  Created on: 27 Sep 2017
+ *      Author: Cundell
+ */
+
+#ifndef MAIN_ACCELMONITOR_H_
+#define MAIN_ACCELMONITOR_H_
+
+#define COMS_EN_GPIO (0)
+
+void Sample_Save(void *parameter);
+void Sample_Stream(void *parameter);
+esp_err_t Calabrate_Accelerometer();
+void ReadAndSendDataFile();
+void test1_task(void *ignore);
+
+extern uint8_t WiFi_Connected;
+extern uint16_t loopParameter;
+extern int ComsTimerCount;
+
+#endif /* MAIN_ACCELMONITOR_H_ */

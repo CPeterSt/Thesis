@@ -1,0 +1,246 @@
+/*
+ * AccelMonitor.c
+ *
+ *  Created on: 31 Jul 2017
+ *      Author: Cundell
+ */
+//#include <stdio.h>
+//#include "freertos/FreeRTOS.h"
+//#include "freertos/task.h"
+//#include "driver/gpio.h"
+//#include "sdkconfig.h"
+//#include "esp_system.h"
+//#include "esp_partition.h"
+#include "NVSManager.h"
+#include "WiFiManager.h"
+#include "SDHC_Manager.h"
+#include "I2C_Manager.h"
+
+
+/* Can run 'make menuconfig' to choose the GPIO to blink,
+   or you can edit the following line and set a number here.
+ */
+#define BLINK_GPIO 2
+
+esp_err_t MMA7660_error;
+
+uint8_t aliveFlag = 1;
+
+esp_err_t Initalize(void);
+
+void blink_Alive_task(void *pvParameter)
+{
+	gpio_pad_select_gpio(BLINK_GPIO);
+	gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+
+	while(aliveFlag) {
+		gpio_set_level(BLINK_GPIO, 0);
+		vTaskDelay(1000 / portTICK_PERIOD_MS);
+		gpio_set_level(BLINK_GPIO, 1);
+		vTaskDelay(1000 / portTICK_PERIOD_MS);
+	}
+
+	return;
+}
+
+void Poll_Accelerometer(void *params)
+{
+
+	double XYZ [3];
+	double sphere[3];
+	double avg[3];
+	double recart[3];
+
+	while(aliveFlag) {
+		int i = 0;
+		for(i = 0; i < 100; i++)
+		{
+			vTaskDelay(20 / portTICK_PERIOD_MS);
+			Get_MMA7660_XYZ(XYZ);
+			avg[0] += XYZ[0];
+			avg[1] += XYZ[1];
+			avg[2] += XYZ[2];
+
+		}
+		avg[0] = avg[0]/100;
+		avg[1] = avg[1]/100;
+		avg[2] = avg[2]/100;
+
+		CartToSpherical(avg, sphere);
+		SphericalToCart(recart, sphere);
+		printf("cart: %.3f, %.3f, %.3f\n", avg[0], avg[1], avg[2]);
+		printf("sphe: %.3f, %.3f, %.3f\n", sphere[0], sphere[1], sphere[2]);
+		printf("reca: %.3f, %.3f, %.3f\n\n", recart[0], recart[1], recart[2]);
+
+	}
+	return;
+}
+
+
+esp_err_t Calabrate_Accelerometer()
+{
+
+	Calabrating = 1;
+	AccelOffSet[0] = 0;
+	AccelOffSet[1] = 0;
+	AccelOffSet[2] = 0;
+
+	double XYZ [3];
+	double sphere[3];
+	int i = 0, calabratedCount = 0;;
+
+	for(i = 0; i < 2000; i++)
+	{
+		vTaskDelay(16 / portTICK_PERIOD_MS);
+		esp_err_t err = Get_MMA7660_XYZ(XYZ);
+		if(err == ESP_OK)
+		{
+			CartToSpherical(XYZ, sphere);
+
+			if(sphere[2] < 179.5)
+			{
+				calabratedCount = 0;
+				AccelOffSet[2] += 0.05;
+				printf("calabratedCount : %d\n", calabratedCount);
+				printf("Calibrating++: %.3f, %.3f, %.3f\n", sphere[0], sphere[1], sphere[2]);
+			}else if(sphere[2] > 180.5)
+			{
+				calabratedCount = 0;
+				AccelOffSet[2] -= 0.05;
+				printf("calabratedCount : %d\n", calabratedCount);
+				printf("Calibrating--: %.3f, %.3f, %.3f\n", sphere[0], sphere[1], sphere[2]);
+			}else if(calabratedCount < 10)
+			{
+				calabratedCount++;
+				printf("calabratedCount : %d\n", calabratedCount);
+				printf("Calibrating ==: %.3f, %.3f, %.3f\n", sphere[0], sphere[1], sphere[2]);
+
+			}else
+			{
+				break;
+				printf("\nCalibrated: %.3f, %.3f, %.3f\n", sphere[0], sphere[1], sphere[2]);
+			}
+		}else
+		{
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error getting MMA7660 XYZ %d", err);
+		}
+	}
+
+	printf("Calibrated i: %d\n", i);
+	Calabrating = 0;
+	return ESP_OK;
+}
+
+
+void app_main()
+{
+	debug_StartUp();
+	esp_err_t err;
+
+	err = Initalize();
+
+	xTaskCreate(&blink_Alive_task, "blink_Alive_task", configMINIMAL_STACK_SIZE, NULL, 5, NULL);
+
+	char inputChar;
+
+	double XYZ2[3];
+	double XYZ [3] = { 1, -1, 1};
+	double sphere[3];
+	CartToSpherical(XYZ, sphere);
+
+	SphericalToCart(XYZ2, sphere);
+
+	printf("XYZ: %.3f, %.3f, %.3f\n", XYZ[0], XYZ[1], XYZ[2]);
+	printf("Spherical: %.3f, %.3f, %.3f\n", sphere[0], sphere[1], sphere[2]);
+	printf("cart: %.3f, %.3f, %.3f\n", XYZ2[0], XYZ2[1], XYZ2[2]);
+
+	while (1) {
+
+		inputChar = getc(stdin);
+		if(inputChar == 'C')
+		{
+			err = clear_all_nvs("Hello%d", 1);
+			if (err != ESP_OK)
+			{
+				printf("Error (%d) Erasing NVS!\n", err);
+			}
+			else
+			{
+				printf("Success!\n");
+			}
+
+
+		}else if(inputChar == 'S')
+		{
+			uint32_t var;
+			uint16_t currentSize = 0;
+
+			for (var = 0; var < 10000; ++var) {
+				err = save_to_nvs("HelloCundell12345678", &currentSize, "Hello%d", 1);
+				vTaskDelay(50 / portTICK_PERIOD_MS);
+
+				if (err != ESP_OK){
+					break;
+				}
+			}
+			if (err != ESP_OK){
+				printf("Error (%d) saving run time blob to NVS!\n", err);
+			}
+			else
+			{
+				printf("Success!\n");
+			}
+
+		}else if(inputChar == 'P')
+		{
+			err = print_nvs("Hello%d", 1);
+			if (err != ESP_OK){
+				printf("Error (%d) printing NVS!\n", err);
+			}
+			else
+			{
+				printf("Success!\n");
+			}
+		}else if(inputChar == 'L')//Log accel data
+		{
+			MMA7660_error = Get_MMA7660_init();
+
+			if (MMA7660_error != ESP_OK)
+			{
+				debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error initalizing MMA7600 (%d)", MMA7660_error);
+			}else
+			{
+				xTaskCreate(&Poll_Accelerometer, "Poll_Accelerometer", 2048, NULL, 5, NULL);
+			}
+
+		}else if(inputChar == 'Q')//Calibrate accelerometer
+		{
+			err = Calabrate_Accelerometer();;
+			if (err != ESP_OK){
+				debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Error Calibrating Accelerometer MMA7600 (%d)", err);
+			}
+			else
+			{
+				printf("Success!\n");
+			}
+		}
+
+
+	}
+}
+
+esp_err_t Initalize()
+{
+	esp_err_t err;
+
+	err = I2C_init();
+
+	WiFi_Config("My ESP-32 04", "123456789");
+
+	SD_Init();
+
+	err = initialize_nvs();
+
+	err = save_restart_counter();
+	return err;
+}

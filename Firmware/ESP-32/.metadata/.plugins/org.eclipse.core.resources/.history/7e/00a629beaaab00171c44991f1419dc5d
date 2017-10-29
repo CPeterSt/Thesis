@@ -1,0 +1,20 @@
+/*
+ * AccelMonitor.h
+ *
+ *  Created on: 27 Sep 2017
+ *      Author: Cundell
+ */
+
+#ifndef MAIN_ACCELMONITOR_H_
+#define MAIN_ACCELMONITOR_H_
+
+#define COMS_EN_GPIO (17)
+
+void Sample_Save(void *parameter);
+void Sample_Stream(void *parameter);
+esp_err_t Calabrate_Accelerometer();
+void ReadAndSendDataFile();
+
+extern uint16_t loopParameter;
+
+#endif /* MAIN_ACCELMONITOR_H_ */

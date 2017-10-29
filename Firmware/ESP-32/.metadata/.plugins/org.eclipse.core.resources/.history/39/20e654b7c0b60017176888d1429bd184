@@ -1,0 +1,240 @@
+/*
+ * I2C_Manager.c
+ *
+ *  Created on: 31 Jul 2017
+ *      Author: Cundell
+ */
+#include "I2C_Manager.h"
+
+double AccelOffSet[2] = {0};
+uint8_t Calabrating = 0;
+
+esp_err_t I2C_init()
+{
+	AccelOffSet[0] = 0;
+	AccelOffSet[1] = 0;
+	AccelOffSet[2] = 0;
+	esp_err_t error;
+	i2c_config_t conf;
+	conf.mode = I2C_MODE_MASTER;
+	conf.sda_io_num = GPIO_SDA;
+	conf.scl_io_num = GPIO_SCL;
+	conf.sda_pullup_en = GPIO_PULLUP_DISABLE;
+	conf.scl_pullup_en = GPIO_PULLUP_DISABLE;
+	conf.master.clk_speed = 100000;
+	error = i2c_param_config(I2C_NUM_0, &conf);
+	if(error != 0)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "1 %d", error);
+		return error;
+	}
+
+	error = i2c_driver_install(I2C_NUM_0, I2C_MODE_MASTER, 0, 0, 0);
+	if(error != 0)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "2 %d", error);
+		return error;
+	}
+
+	return error;
+}
+
+esp_err_t I2C_Write(uint8_t * bytes, uint8_t devAddress, uint8_t regAddress, uint8_t bytes_len)
+{
+
+	i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+	esp_err_t error = 0;
+	i2c_master_start(cmd);
+	i2c_master_write_byte(cmd, (devAddress << 1) | I2C_MASTER_WRITE, 1 /* expect ack */);
+	i2c_master_write_byte(cmd, 0x07, 1 /* expect ack */);
+	uint8_t i;
+	for (i = 0; i < bytes_len; ++i)
+	{
+		i2c_master_write_byte(cmd, bytes[i], 1 /* expect ack */);
+	}
+	i2c_master_stop(cmd);
+	error = i2c_master_cmd_begin(I2C_NUM_0, cmd, 100/portTICK_PERIOD_MS);
+	if(error != 0)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "1 %d", error);
+		return error;
+	}
+	i2c_cmd_link_delete(cmd);
+
+	return error;
+}
+
+esp_err_t I2C_Read(uint8_t * bytes, uint8_t devAddress, uint8_t regAddress)
+{
+	i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+	esp_err_t error = 0;
+	i2c_master_start(cmd);
+	i2c_master_write_byte(cmd, (devAddress << 1) | I2C_MASTER_WRITE, 1 /* expect ack */);
+	i2c_master_write_byte(cmd, regAddress, 1 /* expect ack */);
+	error = i2c_master_cmd_begin(I2C_NUM_0, cmd, 100/portTICK_PERIOD_MS);
+	if(error != 0)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "1 %d", error);
+		return error;
+	}
+	i2c_cmd_link_delete(cmd);
+	cmd = i2c_cmd_link_create();
+	i2c_master_start(cmd);
+	i2c_master_write_byte(cmd, (devAddress << 1) | I2C_MASTER_READ, 0 /* expect ack */);
+	i2c_master_read_byte(cmd, bytes, 1);
+	i2c_master_stop(cmd);
+	error = i2c_master_cmd_begin(I2C_NUM_0, cmd, 100/portTICK_PERIOD_MS);
+	if(error != 0 && debug_Level > 0)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "2 %d", error);
+		return error;
+	}
+
+	i2c_cmd_link_delete(cmd);
+
+	return error;
+}
+
+esp_err_t MMA7660_init()
+{
+	esp_err_t error = 0;
+	uint8_t data [] = {0x01};
+	error = I2C_Write(data, MMA7660_Addr, 0x07, 1);
+
+	if(error != 0)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Set mode Error: %d", error);
+		return error;
+	}
+	error = I2C_Write(data, MMA7660_Addr, 0x08, 1);
+
+	if(error != 0)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Set mode Sample Rate Error: %d", error);
+		return error;
+	}
+	return error;
+}
+
+esp_err_t ADXL345_init()
+{
+	esp_err_t error = 0;
+	uint8_t data [] = {0x80};
+	error = I2C_Write(data, ADXL345_Addr, 0x2D, 1);
+
+	if(error != 0)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Set mode Error: %d", error);
+		return error;
+	}
+	error = I2C_Write(data, MMA7660_Addr, 0x08, 1);
+
+	if(error != 0)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Set mode Sample Rate Error: %d", error);
+		return error;
+	}
+	return error;
+}
+
+esp_err_t Get_MMA7660_XYZ(double * XYZ)
+{
+	esp_err_t error = 0;
+	uint8_t count = 0;
+	uint8_t XYZtmp[3] = {0};
+	do {
+		error = I2C_Read(&XYZtmp[0], MMA7660_Addr, 0x00);
+		if(count >= 100)
+		{
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "x Count exceeded");
+			return -1;
+		}
+		count++;
+	} while (XYZtmp[0] & 0b01000000);
+
+
+	if(error != 0)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "X value Error:%d", error);
+		return error;
+	}
+
+	count = 0;
+
+	do {
+		error = I2C_Read(&XYZtmp[1], MMA7660_Addr, 0x01);
+		if(count >= 100)
+		{
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Y Count exceeded");
+			return -1;
+		}
+		count++;
+	} while (XYZtmp[0] & 0b01000000);
+
+	if(error != 0)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Y value Error:%d", error);
+		return error;
+	}
+
+
+	count = 0;
+
+	do {
+		error = I2C_Read(&XYZtmp[2], MMA7660_Addr, 0x02);
+		if(count >= 100)
+		{
+			debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Z Count exceeded");
+			return -1;
+		}
+		count++;
+	} while (XYZtmp[0] & 0b01000000);
+
+	if(error != 0)
+	{
+		debug_Write(__FILE__, __FUNCTION__, __LINE__, Error_code, "Z value Error:%d", error);
+		return error;
+	}
+
+	uint8_t i = 0;
+
+	for(i = 0; i < 3; i++)//Converting from 6 bit 2’s compliment
+	{
+		if(XYZtmp[i] & 0b00100000)
+		{
+			XYZtmp[i] = ~(XYZtmp[i] | 0b11100000) + 1;
+			XYZ[i] = ((double)(XYZtmp[i] * -1))/31*1.5*9.81;
+		}else
+		{
+			XYZ[i] = ((double)(XYZtmp[i] & 0b00011111))/31*1.5*9.81;
+		}
+		//XYZ[i] = (XYZ[i] / 1.5) * 32;
+
+	}
+
+	XYZ[2] = XYZ[2]*-1;
+
+	double sphere[3];
+	CartToSpherical(XYZ, sphere);
+	//printf("\nXYZ 1: %.3f, %.3f, %.3f\n", XYZ[0], XYZ[1], XYZ[2]);
+	//printf("sphere 1: %.3f, %.3f, %.3f\n", sphere[0], sphere[1], sphere[2]);
+
+
+	//sphere[1] += AccelOffSet[1];
+	sphere[1] = sphere[1] + AccelOffSet[1];
+
+	//printf("sphere 2: %.3f, %.3f, %.3f\n\n", sphere[0], sphere[1], sphere[2]);
+	double XYZ2[3];
+
+	SphericalToCart(XYZ2, sphere);
+
+	XYZ[0] = XYZ2[0];
+	XYZ[1] = XYZ2[1];
+	XYZ[2] = XYZ2[2];
+	//printf("XYZ 2: %.3f, %.3f, %.3f\n", XYZ[0], XYZ[1], XYZ[2]);
+
+
+	return error;
+}
+
+
